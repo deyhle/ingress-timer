@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<header>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script>
+$(function() {
+   var count = 0;
+   var notify = function(){
+      var timeLeft = $("#input").val()*1000;
+      $("#timer").text(timeLeft/1000+'s');
+      var target = new Date().getTime()+timeLeft;
+      var timer = setInterval(function(){
+         var left = Math.floor((target-new Date().getTime())/1000);
+         
+         $("#timer").text(left+'s');
+         document.title=left+'s';
+      }, 500);
+      
+      setTimeout(function(){
+         console.log("notify!");
+         clearInterval(timer);
+         $("#timer").text('');
+         count++;
+        if (window.webkitNotifications.checkPermission() == 0) {
+            var notification = window.webkitNotifications.createNotification('http://cr0ybot.github.io/ingress-logos/ingress_original.png',"Time to hack!",timeLeft/1000+" seconds have passed. Click here to start again. This will be hack #"+(count+1)+".")
+            notification.show();
+            notification.onclick = function() { console.log("clicked!"); notify(); };
+            notification.onclose = function() { count = 0; };
+        } else {
+            console.log("no permission");
+        }
+         
+      }, timeLeft)
+        
+    };
+    
+    $('#permit').bind("click", function(){
+        if (window.webkitNotifications.checkPermission() != 0) {
+            window.webkitNotifications.requestPermission();
+        }
+    });
+    $('#notify').bind("click", notify);
+    
+    
+});
+</script>
+</header>
+<body>
+<p>
+<button id="permit" href="#">Activate Notifications!</button>
+</p>
+<p>
+<button id="notify" href="#">Start countdown!</button>
+</p>
+<input type="number" value="300" id="input" min="1"/>
+<p id="timer" style="font-size: 5em;"></p>
+
+</body>
+</html>
